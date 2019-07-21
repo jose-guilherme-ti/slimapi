@@ -114,7 +114,7 @@ class tpApp extends DbConnection {
         $valores = substr(trim($valores), 0, -1);
         $querySql = "INSERT INTO {$this->TABLE}($colunas) VALUES($valores); ";
         $this->query = $querySql;
-        //echo $querySql;
+        echo $querySql;
         $resultSql = $conn->executarQuery($querySql);
         $this->last_id = $conn->mysqliLastId();
         $conn->_closeConnection();

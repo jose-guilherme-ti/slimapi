@@ -56,7 +56,7 @@ class tpApp extends DbConnection {
         }
 
         $this->query = $sqlQuery;
-        //echo $sqlQuery."<br>";
+        echo $sqlQuery."<br>";
         $this->query_result = $this->executarQuery($sqlQuery);
         //$this->_closeConnection();
 

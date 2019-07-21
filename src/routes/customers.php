@@ -7,8 +7,9 @@ $app = new \Slim\App;
 
 //Get All Customers
 
-$app->get('/api/customers/cursos', function (Request $request, Response $response) {
-    $objeto2 = new tpApp("cursos_processos_seletivos");
+
+$app->get('/api/customers/carregar_tipo_evento', function () {
+    $objeto2 = new tpApp("tipo_evento_principal");
     $sql_objeto = $objeto2->obterTodos('*');
     while ($row = $objeto2->mysqliArray($sql_objeto)) {
         $resultado[] = $row;
@@ -16,15 +17,17 @@ $app->get('/api/customers/cursos', function (Request $request, Response $respons
     echo json_encode($resultado);
 });
 
-
-$app->get('/api/customers/carregar_base_consultor', function (Request $request, Response $response) {
-    $objeto2 = new tpApp("acesso_consultor");
-    $sql_objeto = $objeto2->obterTodos('*');
+//Get Single Customers
+$app->get('/api/customers/carregar_evento_atributo/{id}', function (Request $request, Response $response) {
+    $id = $request->getAttribute('id');
+    $objeto2 = new tpApp("atributos_tipo_evento");
+    $sql_objeto = $objeto2->obterTodos('*', "id_tipo_evento_principal=$id");
     while ($row = $objeto2->mysqliArray($sql_objeto)) {
         $resultado[] = $row;
     }
     echo json_encode($resultado);
 });
+
 
 $app->get('/api/customers/cidade', function (Request $request, Response $response) {
     $objeto2 = new tpApp("app_cidade");
@@ -57,16 +60,7 @@ $app->get('/api/customers/processo_seletivo', function (Request $request, Respon
 });
 
 
-//Get Single Customers
-$app->get('/api/customers/{id}', function (Request $request, Response $response) {
-    $id = $request->getAttribute('id');
-    $objeto2 = new tpApp("acesso_consultor");
-    $sql_objeto = $objeto2->obterTodos('*', "id=$id");
-    while ($row = $objeto2->mysqliArray($sql_objeto)) {
-        $resultado[] = $row;
-    }
-    echo json_encode($resultado);
-});
+
 
 
 //add  Customers
@@ -92,7 +86,7 @@ $app->post('/api/customers/criartabela', function (Request $request, Response $r
 
     
     $array = array();
-    $array['id_tipo_envento_principal'] =  $id_tipo_evento;
+    $array['id_tipo_evento_principal'] =  $id_tipo_evento;
     foreach ($atributos as $key => $value) {
       $array['campo_atributo'] = $value; 
       $sql_objeto2 = $objeto3->insert($array);  
@@ -106,19 +100,29 @@ $app->post('/api/customers/criartabela', function (Request $request, Response $r
     //echo json_encode($resultado);
 });
 
-$app->post('/api/customers/enviar', function (Request $request, Response $response) {
+$app->post('/api/customers/cadastro_evento', function (Request $request, Response $response) {
     $data = $request->getParsedBody();
     //$last_name = $request->getParam('category_name');
 
-    $objeto = new tpApp("ingressos_vestibular");
+    $objeto = new tpApp("atributos_tipo_evento");
     //$post['name'] = filter_var($data['name'], FILTER_SANITIZE_STRING);
+    $objeto2 = new tpApp("evento_principal");
 
-    $c = 0;
+    var_dump($data);
+    $arrayAtributo = array();
+    $arraySemAtributo = array();
+    //$c = 0;
     foreach ($data as $key => $val) {
         //$_POST['nome'] = $val['name'];
-
-
-        $c += 1;
+        list($nomeAtributo, $idAtributo) = explode("_", $key);
+        if ($nomeAtributo == "atributo"){
+            $arrayAtributo['input_atributo'] = $val;
+            $objeto->update($arrayAtributo, "id=" . $idAtributo);
+        }else{
+           $arraySemAtributo[$key] = $val;
+        }   
+        
+      /*  $c += 1;
         unset($val['id']);
         unset($val['category_id']);
         unset($val['enviados']);
@@ -126,12 +130,11 @@ $app->post('/api/customers/enviar', function (Request $request, Response $respon
         unset($val['cidade_nome']);
         $val['processo_seletivo'] = $val['category_name'];
         unset($val['category_name']);
-        $objeto->insert($val);
+        $objeto->insert($val);*/
     }
-    $s = $c > 1 ? 's' : '';
-
+    $objeto2->insert($arraySemAtributo);
     $msg = array(
-        'msg' => "Total de $c leed$s enviado$s"
+        'msg' => "Total de enviado"
     );
 
 
